@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,8 +34,6 @@ public class MainTest {
                 .skip(3)
                 .limit(5)
                 .collect(Collectors.toList());
-
-        //PriorityQueue<Integer> queue = new PriorityQueue<>(Comparator.comparingInt());
 
         Collections.binarySearch(collect, 8, Comparator.comparingInt(o -> o));
 
@@ -137,6 +136,7 @@ public class MainTest {
 
         MergeSort<Integer> sorter = new MergeSort<>();
         Integer[] intList = list.toArray(new Integer[0]);
+
         sorter.sort(intList, 0, list.size(), Comparator.comparingInt(Integer::intValue));
         System.out.println(Arrays.asList(intList));
     }
@@ -177,7 +177,76 @@ public class MainTest {
     }
 
     @Test
-    public void testQuickSort() {
+    public void testPowerLogN() {
+        int x = 3;
+        int y = 5;
 
+        assertEquals(0, power(x, y));
+    }
+
+    private long power(int x, int y) {
+        long res = 1;
+
+        while(y != 0) {
+            if ((y & 1) == 1) {
+                res = res * x;
+            }
+
+            y = y >> 1;
+            x = x * x;
+        }
+
+        return res;
+    }
+
+    @Test
+    public void testDuplicate() {
+        int arr[] = {1, 2, 3, 4, 5, 1, 2, 3};
+
+        int xAndY = 0;
+        for (int i : arr) {
+            xAndY = xAndY ^ i;
+        }
+
+        int rightMostOne = xAndY;
+        int value = 1;
+        while((rightMostOne & 1) != 1) {
+            rightMostOne = rightMostOne >> 1;
+            value = value << 1;
+        }
+
+        for (int i : arr) {
+            if ((value & i) == 1) {
+                xAndY = xAndY ^ i;
+            }
+        }
+
+        assertEquals(4, xAndY);
+    }
+
+    @Test
+    public void testMedianOfTwoSortedArrays() {
+        int arr1[] = {1, 12, 15, 26, 38};
+        int arr2[] = {2, 13, 17, 30, 45};
+
+        assertEquals(16, findMedian(arr1, 0, arr1.length, arr2, 0, arr2.length));
+
+        BlockingQueue<Integer> blockingQueue = new LinkedBlockingDeque<>();
+    }
+
+    private int findMedian(int[] arr1, int l1, int r1, int[] arr2, int l2, int r2) {
+        if (r1-l1 == 2 && r2-l2 == 2)
+            return (Math.max(arr1[l1], arr2[l2]) + Math.min(arr1[r1-1], arr2[r2-1])) / 2;
+
+        int m1 = (l1 + r1) / 2;
+        int m2 = (l2 + r2) / 2;
+
+        if (arr1[m1] == arr2[m2]) {
+            return arr1[m1];
+        } else if (arr1[m1] < arr2[m2]) {
+            return findMedian(arr1, m1, r1, arr2, l2, m2+1);
+        } else {
+            return findMedian(arr1, l1, m1+1, arr2, m2, r2);
+        }
     }
 }

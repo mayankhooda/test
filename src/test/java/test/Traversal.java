@@ -63,6 +63,7 @@ public class Traversal {
     public void testInorderWithoutRecursion() {
         TreeNode root = buildTree();
         List<Integer> list = new ArrayList<>();
+        List<Integer> lis2 = new ArrayList<>(list);
 
         Stack<TreeNode> stack = new Stack<>();
         TreeNode curr = root;
