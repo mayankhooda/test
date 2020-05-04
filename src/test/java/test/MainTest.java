@@ -2,14 +2,7 @@ package test;
 
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
@@ -248,5 +241,48 @@ public class MainTest {
         } else {
             return findMedian(arr1, l1, m1+1, arr2, m2, r2);
         }
+    }
+
+    @Test
+    public void testBooleanParenthesization() {
+        boolean[] symbol = {true, false, true};
+        char[] operator = {'^', '&'};
+        int[][][] memo = new int[symbol.length][symbol.length][2];
+        boolean[][] visited = new boolean[symbol.length][symbol.length];
+
+        assertEquals(2, waysOfParenthesization(visited, memo, symbol, operator, 0, symbol.length-1)[1]);
+    }
+
+    private int[] waysOfParenthesization(boolean[][] visited, int[][][] memo, boolean[] symbol, char[] operator, int start, int end) {
+        if (visited[start][end])
+            return memo[start][end];
+
+        int[] ways = new int[2];
+        if (start == end) {
+            if (symbol[start])
+                ways[1]++;
+            else
+                ways[0]++;
+        } else {
+            for (int i=start; i<end; i++) {
+                int[] leftWays = waysOfParenthesization(visited, memo, symbol, operator, start, i);
+                int[] rightWays = waysOfParenthesization(visited, memo, symbol, operator, i+1, end);
+
+                if (operator[i] == '^') {
+                    ways[1] += leftWays[0] * rightWays[1] + leftWays[1] * rightWays[0];
+                    ways[0] += leftWays[0] * rightWays[0] + leftWays[1] * rightWays[1];
+                } else if (operator[i] == '&') {
+                    ways[1] += leftWays[1] * rightWays[1];
+                    ways[0] += leftWays[1] * rightWays[0] + leftWays[0] * rightWays[1] + leftWays[0] * rightWays[0];
+                } else {
+                    ways[1] += leftWays[1] * rightWays[0] + leftWays[0] * rightWays[1] + leftWays[1] * rightWays[1];
+                    ways[0] += leftWays[0] * rightWays[0];
+                }
+            }
+        }
+
+        memo[start][end] = ways;
+        visited[start][end] = true;
+        return ways;
     }
 }
